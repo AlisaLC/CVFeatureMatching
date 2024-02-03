@@ -1,2 +1,6 @@
 numpy
 opencv-python
+kornia
+torch
+argparse
+streamlit

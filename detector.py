@@ -1,9 +1,13 @@
+from typing import Any
 import cv2
 import numpy as np
 
 class KeypointDetector:
     def __init__(self):
         pass
+
+    def __call__(self, *args: Any, **kwds: Any):
+        return self.detect_and_compute(*args, **kwds)
 
     def detect(self, image):
         raise NotImplementedError
@@ -13,6 +17,9 @@ class KeypointDetector:
     
     def detect_and_compute(self, image):
         raise NotImplementedError
+    
+    def filter_points(self, keypoints, min_size=3):
+        return [kp for kp in keypoints if kp.size > min_size]
 
     
 class HarrisDetector(KeypointDetector):
