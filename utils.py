@@ -9,8 +9,8 @@ def to_gray(image):
 def to_rgb(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-def draw_keypoints(image, keypoints):
-    return cv2.drawKeypoints(image, keypoints, None)
+def draw_keypoints(image, keypoints, **kwargs):
+    return cv2.drawKeypoints(image, keypoints, None, **kwargs)
 
-def draw_matches(image1, image2, keypoints1, keypoints2, matches):
-    return cv2.drawMatches(image1, keypoints1, image2, keypoints2, matches, None)
+def draw_matches(image1, image2, keypoints1, keypoints2, matches, **kwargs):
+    return cv2.drawMatchesKnn(image1, keypoints1, image2, keypoints2, matches, None, **kwargs)
