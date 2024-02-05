@@ -127,3 +127,61 @@ class ORBDetector(KeypointDetector):
     
     def detect_and_compute(self, image):
         return self.detector.detectAndCompute(image, None)
+
+class MSERDetector(KeypointDetector):
+    def __init__(self):
+        self.mser = cv2.MSER_create()
+
+    def __extract_regions(self, image):
+        regions, _ = self.mser.detectRegions(image)
+        keypoints = []
+        for region in regions:
+            if len(region) > 0:
+                region = np.array(region)
+                x, y, w, h = cv2.boundingRect(region.reshape(-1, 1, 2))
+                keypoints.append(cv2.KeyPoint(x + w / 2, y + h / 2, max(w, h)))
+        return keypoints
+    
+    def detect(self, image):
+        return self.__extract_regions(image)
+    
+    def compute(self, image, keypoints):
+        return None, None
+    
+    def detect_and_compute(self, image):
+        keypoints = self.__extract_regions(image)
+        return keypoints, None
+
+class AKAZEDetector(KeypointDetector):
+    def __init__(self):
+        super().__init__()
+        self.akaze = cv2.AKAZE_create()
+
+    def detect(self, image):
+        keypoints = self.akaze.detect(image, None)
+        return keypoints
+    
+    def compute(self, image, keypoints):
+        keypoints, descriptors = self.akaze.compute(image, keypoints)
+        return keypoints, descriptors
+    
+    def detect_and_compute(self, image):
+        keypoints, descriptors = self.akaze.detectAndCompute(image, None)
+        return keypoints, descriptors
+
+class BRISKDetector(KeypointDetector):
+    def __init__(self):
+        super().__init__()
+        self.brisk = cv2.BRISK_create()
+
+    def detect(self, image):
+        keypoints = self.brisk.detect(image, None)
+        return keypoints
+    
+    def compute(self, image, keypoints):
+        keypoints, descriptors = self.brisk.compute(image, keypoints)
+        return keypoints, descriptors
+    
+    def detect_and_compute(self, image):
+        keypoints, descriptors = self.brisk.detectAndCompute(image, None)
+        return keypoints, descriptors
