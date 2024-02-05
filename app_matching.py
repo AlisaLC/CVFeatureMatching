@@ -38,7 +38,7 @@ deep_matchers = {
 }
 
 st.sidebar.title("Fundamental Matrix")
-fundamental = st.sidebar.selectbox("Choose a fundamental matrix method", ["None", "Default", "RANSAC", "USAC_MAGSAC", "LMEDS", "FM_7POINT"])
+fundamental = st.sidebar.selectbox("Choose a fundamental matrix method", ["None", "Default", "RANSAC", "USAC_MAGSAC", "LMEDS", "FM_7POINT", "USAC_DEFAULT", "USAC_PARALLEL", "USAC_FAST", "USAC_ACCURATE"])
 fundamentals = {
     "None": None,
     "Default": DefaultFundamental,
@@ -46,6 +46,10 @@ fundamentals = {
     "USAC_MAGSAC": USACMAGSACFundamental,
     "LMEDS": LMEDSFundamental,
     "FM_7POINT": FM_7POINTFundamental,
+    "USAC_DEFAULT": USACDEFAULTFundamental,
+    "USAC_PARALLEL": USACPARALLELFundamental,
+    "USAC_FAST": USACFASTFundamental,
+    "USAC_ACCURATE": USACACCURATEFundamental
 }
 
 uploaded_files = st.file_uploader("Choose an image...", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
