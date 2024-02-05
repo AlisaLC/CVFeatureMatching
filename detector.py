@@ -168,3 +168,20 @@ class AKAZEDetector(KeypointDetector):
     def detect_and_compute(self, image):
         keypoints, descriptors = self.akaze.detectAndCompute(image, None)
         return keypoints, descriptors
+
+class BRISKDetector(KeypointDetector):
+    def __init__(self):
+        super().__init__()
+        self.brisk = cv2.BRISK_create()
+
+    def detect(self, image):
+        keypoints = self.brisk.detect(image, None)
+        return keypoints
+    
+    def compute(self, image, keypoints):
+        keypoints, descriptors = self.brisk.compute(image, keypoints)
+        return keypoints, descriptors
+    
+    def detect_and_compute(self, image):
+        keypoints, descriptors = self.brisk.detectAndCompute(image, None)
+        return keypoints, descriptors
