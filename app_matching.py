@@ -11,7 +11,7 @@ import io
 st.title("Image Matching")
 
 st.sidebar.title("Detector")
-detector = st.sidebar.selectbox("Choose a detector", ["SIFT", "SURF", "FAST", "BRIEF", "ORB"])
+detector = st.sidebar.selectbox("Choose a detector", ["SIFT", "SURF", "FAST", "BRIEF", "ORB", "MSER", "AKAZE", "BRISK"])
 detectors = {
     "SIFT": SIFTDetector,
     "SURF": SURFDetector,

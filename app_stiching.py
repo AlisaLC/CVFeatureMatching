@@ -7,7 +7,7 @@ from utils import load_image_from_bytes, to_gray, to_rgb, draw_keypoints, draw_m
 st.title("Image Stitching")
 
 st.sidebar.title("Detector")
-detector = st.sidebar.selectbox("Choose a detector", ["SIFT", "SURF", "FAST", "BRIEF", "ORB"])
+detector = st.sidebar.selectbox("Choose a detector", ["SIFT", "SURF", "FAST", "BRIEF", "ORB", "MSER", "AKAZE", "BRISK"])
 detectors = {
     "SIFT": SIFTDetector,
     "SURF": SURFDetector,
