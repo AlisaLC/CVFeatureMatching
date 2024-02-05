@@ -17,7 +17,10 @@ detectors = {
     "SURF": SURFDetector,
     "FAST": FastDetector,
     "BRIEF": BRIEFDetector,
-    "ORB": ORBDetector
+    "ORB": ORBDetector,
+    "MSER": MSERDetector,
+    "AKAZE": AKAZEDetector,
+    "BRISK": BRISKDetector
 }
 
 st.sidebar.title("Matcher")
