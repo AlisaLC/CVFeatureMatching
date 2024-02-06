@@ -7,6 +7,7 @@ from utils import load_image_from_bytes, to_gray, to_rgb, draw_keypoints, draw_m
 import cv2
 import matplotlib.pyplot as plt
 import io
+import time
 
 st.title("Image Matching")
 
@@ -68,6 +69,8 @@ if len(uploaded_files) == 2:
     col2.header("Image 2")
     col2.image(img2, use_column_width=True)
 
+    start_time = time.time()
+
     if deep_matcher != "None":
         if fundamental == "None":
             fundamental = "RANSAC"
@@ -93,13 +96,30 @@ if len(uploaded_files) == 2:
         detector = detectors[detector]()
         matcher = matchers[matcher]()
 
+        detector_stime = time.time()
+
         kp1 = detector.detect(gray1)
         kp1 = detector.filter_points(kp1)
         kp1, des1 = detector.compute(gray1, kp1)
         kp2 = detector.detect(gray2)
         kp2 = detector.filter_points(kp2)
         kp2, des2 = detector.compute(gray2, kp2)
+
+        detector_etime = time.time()
+
         matches = matcher(des1, des2)
         matches = matcher.filter_matches(matches)
 
+        matcher_etime = time.time()
+
         st.image(draw_matches(img1, img2, kp1, kp2, matches, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS))
+    
+    end_time = time.time()
+
+    elapsed_time_ms = (end_time - start_time) * 1000
+    detector_time_ms = (detector_etime - detector_stime) * 1000
+    matcher_time_ms = (matcher_etime - detector_etime) * 1000
+
+    st.metric(label="Total Processing Time", value=f"{elapsed_time_ms:.2f} ms")
+    st.metric(label="Detector Processing Time", value=f"{detector_time_ms:.2f} ms")
+    st.metric(label="Matcher Processing Time", value=f"{matcher_time_ms:.2f} ms")
