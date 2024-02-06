@@ -33,7 +33,6 @@ def timer(label):
     yield
     end = time.time()
     timing_results[label] = f"{(end - start) * 1000:.2f} ms"
-    # st.sidebar.table([[label, f"{(end - start) * 1000:.2f} ms"]])
 
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], accept_multiple_files=False)
 
