@@ -53,6 +53,13 @@ def timer(label):
         elapsed = (end - start) * 1000
         timing_results[label] = f"{elapsed:.2f} ms"
 
+metrics = {}
+
+def chunked_metrics(metrics, chunk_size):
+    items = list(metrics.items())  # Convert to list for slicing
+    for i in range(0, len(items), chunk_size):
+        yield items[i:i + chunk_size]
+
 uploaded_files = st.file_uploader("Choose an image...", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
 
 if len(uploaded_files) > 1:
@@ -79,12 +86,14 @@ if len(uploaded_files) > 1:
                 keypoints_i = detector.detect(gray_i)
                 keypoints_i = detector.filter_points(keypoints_i)
                 keypoints_i, descriptors_i = detector.compute(gray_i, keypoints_i)
+                metrics[f"Keypoints in Image {i}"] = len(keypoints_i)
 
             with timer(f"Matcher Processing Time For Image {i}"):
 
                 matches = matcher.knnMatch(descriptors, descriptors_i)
                 matches = matcher.filter_matches(matches)
                 src_pts, dst_pts = matcher.get_points(keypoints, keypoints_i, matches)
+                metrics[f"Matches in Image {i}"] = len(matches)
             
             with timer(f"Finding Homography Processing Time For Image {i}"):
 
@@ -95,5 +104,11 @@ if len(uploaded_files) > 1:
 
     timing_data = [{"Process Type": key, "Time To Take (Miliseconds)": value} for key, value in timing_results.items()]
     st.table(timing_data)
+
+    for chunk in chunked_metrics(metrics, 4):
+        cols = st.columns(4)
+        for col, (label, value) in zip(cols, chunk):
+            with col:
+                st.metric(label=label, value=value)
 else:
     st.write("Please upload at least two images to stitch.")
