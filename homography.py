@@ -41,3 +41,24 @@ class RHOHomography(Homography):
 
     def findHomography(self, src_pts, dst_pts, ransacReprojThreshold=5.0):
         return cv2.findHomography(src_pts, dst_pts, cv2.RHO, ransacReprojThreshold)
+
+class USACPARALLELHomography(Homography):
+    def __init__(self):
+        super().__init__()
+
+    def findHomography(self, src_pts, dst_pts, ransacReprojThreshold=5.0):
+        return cv2.findHomography(src_pts, dst_pts, cv2.USAC_PARALLEL, ransacReprojThreshold)
+
+class USACFASTHomography(Homography):
+    def __init__(self):
+        super().__init__()
+
+    def findHomography(self, src_pts, dst_pts, ransacReprojThreshold=5.0):
+        return cv2.findHomography(src_pts, dst_pts, cv2.USAC_FAST, ransacReprojThreshold)
+
+class USACACCURATEHomography(Homography):
+    def __init__(self):
+        super().__init__()
+
+    def findHomography(self, src_pts, dst_pts, ransacReprojThreshold=5.0):
+        return cv2.findHomography(src_pts, dst_pts, cv2.USAC_ACCURATE, ransacReprojThreshold)

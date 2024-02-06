@@ -27,13 +27,16 @@ matchers = {
 }
 
 st.sidebar.title("Homography")
-homography = st.sidebar.selectbox("Choose a homography", ["RANSACHomography", "RHOHomography", "LMEDSHomography", "USACMAGSACHomography", "DefaultHomography"])
+homography = st.sidebar.selectbox("Choose a homography", ["RANSACHomography", "RHOHomography", "LMEDSHomography", "USACMAGSACHomography", "DefaultHomography", "USACPARALLELHomography", "USACFASTHomography", "USACACCURATEHomography"])
 homographies = {
     "RANSACHomography": RANSACHomography,
     "RHOHomography": RHOHomography,
     "LMEDSHomography": LMEDSHomography,
     "USACMAGSACHomography": USACMAGSACHomography,
-    "DefaultHomography": DefaultHomography
+    "DefaultHomography": DefaultHomography,
+    "USACPARALLELHomography": USACPARALLELHomography,
+    "USACFASTHomography": USACFASTHomography,
+    "USACACCURATEHomography": USACACCURATEHomography
 }
 
 uploaded_files = st.file_uploader("Choose an image...", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
