@@ -18,7 +18,7 @@ class LoFTRMatcher:
         keypoints1 = matches['keypoints1'].cpu().numpy()
         return keypoints0, keypoints1
 
-    def __call__(self, img):
+    def detect_keypoints(self, img):
         img_tensor = torch.tensor(img / 255.).unsqueeze(0).unsqueeze(0).to(DEVICE).float()
         with torch.no_grad():
             matches = self.loftr({'image0': img_tensor, 'image1': img_tensor})

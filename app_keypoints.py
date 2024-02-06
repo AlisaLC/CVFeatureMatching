@@ -54,7 +54,7 @@ if uploaded_file is not None:
             scale = 1000 / max(image.shape[:2])
             image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
             gray1 = to_gray(image)
-            keypoints = detector(gray1)
+            keypoints = detector.detect_keypoints(gray1)
             keypoints_image = draw_loftr_keypoints(image, keypoints)
 
     
