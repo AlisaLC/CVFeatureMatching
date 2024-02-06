@@ -145,6 +145,7 @@ if len(uploaded_files) == 2:
 
     with timer("Total Processing Time"):
         if method == "Deep":
+            detector_name = deep_matcher
             fundamental = fundamentals[fundamental]()
             deep_matcher = deep_matchers[deep_matcher]()
 
@@ -214,7 +215,7 @@ if len(uploaded_files) == 2:
 
     metrics["Keypoints in Image 1"] = len(kp1)
     metrics["Keypoints in Image 2"] = len(kp2)
-    metrics["Matches Found"] = len(matches)
+    metrics["Matches Found"] = len(matches) if matches else 0
     
     cols = st.columns(len(metrics))
     for col, (label, value) in zip(cols, metrics.items()):
