@@ -5,6 +5,7 @@ import kornia.feature as KF
 import matplotlib.pyplot as plt
 import torch
 from kornia_moons.viz import draw_LAF_matches
+from hloc.utils import viz_3d
 
 def load_image(image_path):
     return cv2.imread(image_path)
@@ -20,6 +21,8 @@ def to_rgb(image):
     return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
 def draw_keypoints(image, keypoints, **kwargs):
+    if kwargs.get("color", None) is None:
+        kwargs["color"] = (255, 0, 0)
     return cv2.drawKeypoints(image, keypoints, None, **kwargs)
 
 def draw_matches(image1, image2, keypoints1, keypoints2, matches, **kwargs):
@@ -64,6 +67,7 @@ def draw_loftr_matches(image1, image2, keypoints1, keypoints2, inliers):
         },
     )
 
+
 def draw_loftr_keypoints(image, keypoints, color=(0, 255, 0), radius=3, thickness=-1):
     if isinstance(keypoints, torch.Tensor):
         keypoints = keypoints.cpu().numpy()
@@ -74,3 +78,8 @@ def draw_loftr_keypoints(image, keypoints, color=(0, 255, 0), radius=3, thicknes
         cv2.circle(image_with_keypoints, (x, y), radius, color, thickness)
 
     return image_with_keypoints
+
+def draw_superpoint_matches(model):
+    fig = viz_3d.init_figure()
+    viz_3d.plot_reconstruction(fig, model, color='rgba(255,0,0,0.5)', name="mapping", points_rgb=True)
+    return fig

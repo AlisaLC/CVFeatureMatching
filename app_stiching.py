@@ -100,7 +100,8 @@ if len(uploaded_files) > 1:
                 H, _ = homography.findHomography(dst_pts, src_pts)
                 img = warp_images(img, img_i, H)
 
-    st.image(img, caption=f"Stitched Image", use_column_width=True)
+    img_rgb = to_rgb(img)
+    st.image(img_rgb, caption=f"Stitched Image", use_column_width=True)
 
     timing_data = [{"Process Type": key, "Time To Take (Miliseconds)": value} for key, value in timing_results.items()]
     st.table(timing_data)

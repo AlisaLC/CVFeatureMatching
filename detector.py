@@ -32,7 +32,8 @@ class HarrisDetector(KeypointDetector):
         dst = cv2.dilate(dst, None)
         ret, dst = cv2.threshold(dst, 0.01*dst.max(), 255, 0)
         dst = np.uint8(dst)
-        return dst
+        keypoints = [cv2.KeyPoint(x, y, 3) for y in range(dst.shape[0]) for x in range(dst.shape[1]) if dst[y, x] > 0]
+        return keypoints
     
     def detect(self, image):
         return self.__harris_corners(image)
@@ -58,8 +59,9 @@ class ShiTomasiDetector(KeypointDetector):
     
     def __shi_tomasi_corners(self, grayscaled_image, max_corners=23):
         corners = cv2.goodFeaturesToTrack(grayscaled_image, max_corners, 0.01, 10)
-        corners = np.int0(corners)
-        return corners
+        corners = corners.reshape(-1, 2)
+        keypoints = [cv2.KeyPoint(x, y, 3) for x, y in corners]
+        return keypoints
 
 class SIFTDetector(KeypointDetector):
     def __init__(self):
