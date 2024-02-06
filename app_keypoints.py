@@ -101,11 +101,13 @@ if uploaded_file is not None:
     
     gray_image = to_gray(image)
 
-    with timer("Detection Process"):
-        detector_name = selected_detector 
-        detector = detectors[selected_detector]()
+    detector_name = selected_detector
+    detector = detectors[selected_detector]()
+
+    with timer("Detection Process"): 
         keypoints = detector.detect(gray_image)
-        keypoints_image = draw_keypoints(image_rgb, keypoints)
+
+    keypoints_image = draw_keypoints(image_rgb, keypoints)
 
     update_history(detector_name, len(keypoints), timing_results["Detection Process"])
 
