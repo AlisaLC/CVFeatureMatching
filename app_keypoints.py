@@ -1,6 +1,6 @@
 import streamlit as st
 from contextlib import contextmanager
-from utils import load_image_from_bytes, to_gray, draw_keypoints
+from utils import load_image_from_bytes, to_gray, draw_keypoints, draw_loftr_keypoints
 from detector import *
 from deep import *
 import time
@@ -49,11 +49,16 @@ if uploaded_file is not None:
             detector = detectors[selected_detector]
             keypoints = detector.detect(gray_image)
             keypoints, _ = detector.compute(gray_image, keypoints)
+            keypoints_image = draw_keypoints(image, keypoints)
         else:
             detector = detectors[selected_deep_matcher]
-            keypoints, _ = detector.detect_and_compute(gray_image)
+            scale = 1000 / max(image.shape[:2])
+            image = cv2.resize(image, (0, 0), fx=scale, fy=scale)
+            gray1 = to_gray(image)
+            keypoints = detector(gray1)
+            keypoints_image = draw_loftr_keypoints(image, keypoints)
 
-    keypoints_image = draw_keypoints(image, keypoints)
+    
     st.image(keypoints_image, caption="Detected Keypoints", use_column_width=True)
 
     timing_data = [{"Process Type": key, "Time To Take (Miliseconds)": value} for key, value in timing_results.items()]

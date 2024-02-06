@@ -63,3 +63,14 @@ def draw_loftr_matches(image1, image2, keypoints1, keypoints2, inliers):
             "vertical": False,
         },
     )
+
+def draw_loftr_keypoints(image, keypoints, color=(0, 255, 0), radius=3, thickness=-1):
+    if isinstance(keypoints, torch.Tensor):
+        keypoints = keypoints.cpu().numpy()
+
+    image_with_keypoints = image.copy()
+    for point in keypoints:
+        x, y = int(point[0]), int(point[1])
+        cv2.circle(image_with_keypoints, (x, y), radius, color, thickness)
+
+    return image_with_keypoints
