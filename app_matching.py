@@ -55,6 +55,61 @@ else:
         "USAC_ACCURATE": USACACCURATEFundamental
     }
 
+if 'history' not in st.session_state:
+    st.session_state['history'] = []
+
+if 'counter' not in st.session_state:
+    st.session_state.counter = 0
+
+def update_history(detector_name, keypoints1, keypoints2, matches, processing_time):
+    st.session_state.counter += 1
+    unique_id = f"{detector_name} #{st.session_state.counter}"
+    
+    avg_keypoints = (keypoints1 + keypoints2) / 2
+    processing_time = float(processing_time.split(' ')[0])
+
+    history = st.session_state['history']
+    if len(history) >= 10:
+        history.pop(0)
+    history.append({
+        "Detector": unique_id,
+        "Avg Keypoints": avg_keypoints,
+        "Matches": matches,
+        "Processing Time": processing_time
+    })
+
+    st.session_state['history'] = history
+
+def plot_combined_chart():
+    history = st.session_state['history']
+    if not history:
+        st.write("No data to display yet.")
+        return
+
+    fig, ax1 = plt.subplots()
+
+    detectors = [record["Detector"] for record in history]
+    avg_keypoints = [record["Avg Keypoints"] for record in history]
+    matches = [record["Matches"] for record in history]
+    processing_times = [record["Processing Time"] for record in history]
+
+    ax1.bar(detectors, processing_times, color='b', label='Processing Time (ms)')
+    ax1.set_xlabel('Detector')
+    ax1.set_ylabel('Processing Time (ms)', color='b')
+    ax1.tick_params(axis='y', labelcolor='b')
+
+    ax2 = ax1.twinx()
+    ax2.plot(detectors, avg_keypoints, color='g', marker='o', label='Average Keypoints')
+    ax2.plot(detectors, matches, color='r', marker='x', label='Matches')
+    ax2.set_ylabel('Count', color='k')
+    ax2.tick_params(axis='y', labelcolor='k')
+
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax2.legend(lines + lines2, labels + labels2, loc=0)
+
+    st.pyplot(fig)
+
 timing_results = {}
 
 @contextmanager
@@ -126,7 +181,9 @@ if len(uploaded_files) == 2:
             img = load_image_from_bytes(buffer.getvalue())
             img_rgb = to_rgb(img)
             st.image(img_rgb, use_column_width=True)
+            matches = inliers
         else:
+            detector_name = detector
             detector = detectors[detector]()
             matcher = matchers[matcher]()
 
@@ -150,6 +207,8 @@ if len(uploaded_files) == 2:
 
             st.image(draw_matches(img1_rgb, img2_rgb, kp1, kp2, matches, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS))
 
+    update_history(detector_name, len(kp1), len(kp2), len(matches), timing_results["Total Processing Time"])
+
     timing_data = [{"Process Type": key, "Time To Take (Miliseconds)": value} for key, value in timing_results.items()]
     st.table(timing_data)
 
@@ -161,3 +220,5 @@ if len(uploaded_files) == 2:
     for col, (label, value) in zip(cols, metrics.items()):
         with col:
             st.metric(label=label, value=value)
+
+    plot_combined_chart()

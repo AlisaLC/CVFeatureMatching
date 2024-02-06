@@ -67,6 +67,18 @@ def draw_loftr_matches(image1, image2, keypoints1, keypoints2, inliers):
         },
     )
 
+
+def draw_loftr_keypoints(image, keypoints, color=(0, 255, 0), radius=3, thickness=-1):
+    if isinstance(keypoints, torch.Tensor):
+        keypoints = keypoints.cpu().numpy()
+
+    image_with_keypoints = image.copy()
+    for point in keypoints:
+        x, y = int(point[0]), int(point[1])
+        cv2.circle(image_with_keypoints, (x, y), radius, color, thickness)
+
+    return image_with_keypoints
+
 def draw_superpoint_matches(model):
     fig = viz_3d.init_figure()
     viz_3d.plot_reconstruction(fig, model, color='rgba(255,0,0,0.5)', name="mapping", points_rgb=True)

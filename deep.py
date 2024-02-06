@@ -2,6 +2,7 @@ import random
 import string
 import cv2
 from kornia.feature import LoFTR
+import cv2
 import torch
 from hloc import extract_features, match_features, reconstruction, visualization, pairs_from_exhaustive
 from hloc.visualization import plot_images, read_image
@@ -23,6 +24,13 @@ class LoFTRMatcher:
         keypoints0 = matches['keypoints0'].cpu().numpy()
         keypoints1 = matches['keypoints1'].cpu().numpy()
         return keypoints0, keypoints1
+
+    def detect_keypoints(self, img):
+        img_tensor = torch.tensor(img / 255.).unsqueeze(0).unsqueeze(0).to(DEVICE).float()
+        with torch.no_grad():
+            matches = self.loftr({'image0': img_tensor, 'image1': img_tensor})
+        keypoints = matches['keypoints0'].cpu().numpy()      
+        return keypoints
 
 class SuperMatcher:
     def __init__(self, feature_conf='disk', matcher_conf='disk+lightglue'):
