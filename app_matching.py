@@ -4,6 +4,7 @@ from matcher import *
 from fundamental import *
 from deep import *
 from utils import load_image_from_bytes, to_gray, to_rgb, draw_keypoints, draw_matches, warp_images, draw_loftr_matches
+from contextlib import contextmanager
 import cv2
 import matplotlib.pyplot as plt
 import io
@@ -53,6 +54,19 @@ fundamentals = {
     "USAC_ACCURATE": USACACCURATEFundamental
 }
 
+timing_results = {}
+
+@contextmanager
+def timer(label):
+    start = time.time()
+    try:
+        yield
+    finally:
+        end = time.time()
+        elapsed = (end - start) * 1000
+        timing_results[label] = f"{elapsed:.2f} ms"
+
+
 uploaded_files = st.file_uploader("Choose an image...", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
 
 if len(uploaded_files) == 2:
@@ -69,57 +83,48 @@ if len(uploaded_files) == 2:
     col2.header("Image 2")
     col2.image(img2, use_column_width=True)
 
-    start_time = time.time()
+    with timer("Total Processing Time"):
 
-    if deep_matcher != "None":
-        if fundamental == "None":
-            fundamental = "RANSAC"
-        fundamental = fundamentals[fundamental]()
-        deep_matcher = deep_matchers[deep_matcher]()
-        # downsize img1 so width and height are less than 1000
-        scale = 1000 / max(img1.shape[:2])
-        img1 = cv2.resize(img1, (0, 0), fx=scale, fy=scale)
-        gray1 = to_gray(img1)
-        img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))
-        gray2 = to_gray(img2)
-        kp1, kp2 = deep_matcher(gray1, gray2)
-        F, inliers = fundamental.findFundamental(kp1, kp2)
-        inliers = inliers > 0
-        draw_loftr_matches(img1, img2, kp1, kp2, inliers)
-        plt.axis('off')
-        buffer = io.BytesIO()
-        plt.savefig(buffer, format='png', bbox_inches='tight', pad_inches=0)
-        buffer.seek(0)
-        img = load_image_from_bytes(buffer.getvalue())
-        st.image(img, use_column_width=True)
-    else:
-        detector = detectors[detector]()
-        matcher = matchers[matcher]()
+        if deep_matcher != "None":
+            if fundamental == "None":
+                fundamental = "RANSAC"
+            fundamental = fundamentals[fundamental]()
+            deep_matcher = deep_matchers[deep_matcher]()
+            # downsize img1 so width and height are less than 1000
+            scale = 1000 / max(img1.shape[:2])
+            img1 = cv2.resize(img1, (0, 0), fx=scale, fy=scale)
+            gray1 = to_gray(img1)
+            img2 = cv2.resize(img2, (img1.shape[1], img1.shape[0]))
+            gray2 = to_gray(img2)
+            kp1, kp2 = deep_matcher(gray1, gray2)
+            F, inliers = fundamental.findFundamental(kp1, kp2)
+            inliers = inliers > 0
+            draw_loftr_matches(img1, img2, kp1, kp2, inliers)
+            plt.axis('off')
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png', bbox_inches='tight', pad_inches=0)
+            buffer.seek(0)
+            img = load_image_from_bytes(buffer.getvalue())
+            st.image(img, use_column_width=True)
+        else:
+            detector = detectors[detector]()
+            matcher = matchers[matcher]()
 
-        detector_stime = time.time()
+            with timer("Detector Processing Time"):
 
-        kp1 = detector.detect(gray1)
-        kp1 = detector.filter_points(kp1)
-        kp1, des1 = detector.compute(gray1, kp1)
-        kp2 = detector.detect(gray2)
-        kp2 = detector.filter_points(kp2)
-        kp2, des2 = detector.compute(gray2, kp2)
+                kp1 = detector.detect(gray1)
+                kp1 = detector.filter_points(kp1)
+                kp1, des1 = detector.compute(gray1, kp1)
+                kp2 = detector.detect(gray2)
+                kp2 = detector.filter_points(kp2)
+                kp2, des2 = detector.compute(gray2, kp2)
 
-        detector_etime = time.time()
+            with timer("Matcher Processing Time"):
 
-        matches = matcher(des1, des2)
-        matches = matcher.filter_matches(matches)
+                matches = matcher(des1, des2)
+                matches = matcher.filter_matches(matches)
 
-        matcher_etime = time.time()
-
-        st.image(draw_matches(img1, img2, kp1, kp2, matches, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS))
+            st.image(draw_matches(img1, img2, kp1, kp2, matches, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS))
     
-    end_time = time.time()
-
-    elapsed_time_ms = (end_time - start_time) * 1000
-    detector_time_ms = (detector_etime - detector_stime) * 1000
-    matcher_time_ms = (matcher_etime - detector_etime) * 1000
-
-    st.metric(label="Total Processing Time", value=f"{elapsed_time_ms:.2f} ms")
-    st.metric(label="Detector Processing Time", value=f"{detector_time_ms:.2f} ms")
-    st.metric(label="Matcher Processing Time", value=f"{matcher_time_ms:.2f} ms")
+    timing_data = [{"Process Type": key, "Time To Take (Miliseconds)": value} for key, value in timing_results.items()]
+    st.table(timing_data)
