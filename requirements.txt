@@ -4,3 +4,4 @@ kornia
 torch
 argparse
 streamlit
+kornia_moons

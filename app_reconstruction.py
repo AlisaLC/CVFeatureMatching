@@ -47,7 +47,7 @@ def timer(label):
 uploaded_files = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
 if len(uploaded_files) > 1:
-    imgs = [to_rgb(load_image_from_bytes(file.getvalue())) for file in uploaded_files]
+    imgs = [load_image_from_bytes(file.getvalue()) for file in uploaded_files]
     dir_name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
     streamlit_path = Path('streamlit')
     try:
