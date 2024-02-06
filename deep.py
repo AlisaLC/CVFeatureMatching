@@ -25,26 +25,41 @@ class LoFTRMatcher:
         return keypoints0, keypoints1
 
 class SuperMatcher:
-    def __init__(self):
-        self.feature_conf = extract_features.confs['superpoint_aachen']
-        self.matcher_conf = match_features.confs['superglue']
-        self.outputs = Path('outputs/demo/')
+    def __init__(self, feature_conf='disk', matcher_conf='disk+lightglue'):
+        self.feature_conf = extract_features.confs[feature_conf]
+        self.matcher_conf = match_features.confs[matcher_conf]
+
+    def init(self, images_path, output_path):
+        if isinstance(images_path, str):
+            images_path = Path(images_path)
+        self.images = images_path
+        self.references = [str(p.relative_to(self.images)) for p in (self.images / 'mapping/').iterdir()]
+        print(self.references)
+        if isinstance(output_path, str):
+            output_path = Path(output_path)
+        self.outputs = output_path
         self.sfm_pairs = self.outputs / 'pairs-sfm.txt'
         self.loc_pairs = self.outputs / 'pairs-loc.txt'
         self.sfm_dir = self.outputs / 'sfm'
         self.features = self.outputs / 'features.h5'
         self.matches = self.outputs / 'matches.h5'
-
-    def __call__(self, imgs):
-        # save imgs to a random directory
-        dir_name = 'img_' + str(''.join(random.choices(string.ascii_uppercase + string.digits, k=6)))
-        img_dir = self.outputs / dir_name
-        img_dir.mkdir(parents=True, exist_ok=True)
-        img_paths = []
-        images = Path('datasets/sacre_coeur')
-        references = [str(p.relative_to(images)) for p in (images / 'mapping/').iterdir()]
-        extract_features.main(self.feature_conf, images, image_list=references, feature_path=self.features)
-        pairs_from_exhaustive.main(self.sfm_pairs, image_list=references)
+    
+    def feature_extraction(self):
+        extract_features.main(self.feature_conf, self.images, image_list=self.references, feature_path=self.features)
+    
+    def pair_searching(self):
+        pairs_from_exhaustive.main(self.sfm_pairs, image_list=self.references)
+    
+    def pairs_matching(self):
         match_features.main(self.matcher_conf, self.sfm_pairs, features=self.features, matches=self.matches)
-        model = reconstruction.main(self.sfm_dir, images, self.sfm_pairs, self.features, self.matches, image_list=references)
+    
+    def reconstruction_from_matches(self):
+        model = reconstruction.main(self.sfm_dir, self.images, self.sfm_pairs, self.features, self.matches, image_list=self.references)
         return model
+
+    def __call__(self, images_path, output_path):
+        self.init(images_path, output_path)
+        self.feature_extraction()
+        self.pair_searching()
+        self.pairs_matching()
+        return self.reconstruction_from_matches()
