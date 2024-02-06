@@ -66,6 +66,11 @@ def timer(label):
         elapsed = (end - start) * 1000
         timing_results[label] = f"{elapsed:.2f} ms"
 
+metrics = {
+    "Keypoints in Image 1": 0,
+    "Keypoints in Image 2": 0,
+    "Matches Found": 0
+}
 
 uploaded_files = st.file_uploader("Choose an image...", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
 
@@ -125,6 +130,15 @@ if len(uploaded_files) == 2:
                 matches = matcher.filter_matches(matches)
 
             st.image(draw_matches(img1, img2, kp1, kp2, matches, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS))
-    
+
     timing_data = [{"Process Type": key, "Time To Take (Miliseconds)": value} for key, value in timing_results.items()]
     st.table(timing_data)
+
+    metrics["Keypoints in Image 1"] = len(kp1)
+    metrics["Keypoints in Image 2"] = len(kp2)
+    metrics["Matches Found"] = len(matches)
+    
+    cols = st.columns(len(metrics))
+    for col, (label, value) in zip(cols, metrics.items()):
+        with col:
+            st.metric(label=label, value=value)
