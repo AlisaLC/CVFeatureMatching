@@ -191,7 +191,7 @@ if len(uploaded_files) == 2:
                 kp1 = detector.detect(gray1)
                 kp1 = detector.filter_points(kp1)
                 kp1, des1 = detector.compute(gray1, kp1)
-                dector.detect(gray2)
+                kp2 = detector.detect(gray2)
                 kp2 = detector.filter_points(kp2)
                 kp2, des2 = detector.compute(gray2, kp2)
             
